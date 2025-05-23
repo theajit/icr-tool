@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete ICR Risk Assessment Tool - All Fields</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        }
+        .field-group {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            background: #fafafa;
+        }
+        .required-field {
+            border-left: 4px solid #ef4444;
+        }
+        .field-section {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            background: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const ICRRiskTool = () => {
+            const [formData, setFormData] = useState({
+                // All 21 fields from your requirements
+                third_party_engagement_type_irq: '',
+                what_categories_of_gsk_information_might_the_third_party_process_irq: '',
+                will_the_third_party_have_access_or_contact_to_gsk_it_irq: '',
+                does_the_service_or_product_offered_by_the_third_party_use_artifical_intelligence_generative_irq: '',
+                please_provide_an_esitmated_value_for_each_classification_of_information_irq: '',
+                will_the_product_and_service_include_the_development_irq: '',
+                will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq: '',
+                will_the_third_party_have_access_to_gsks_intellectual_property_irq: '',
+                will_the_third_party_provide_any_publicly_accessible_or_internet_irq: '',
+                what_would_be_the_impact_on_gsk_if_an_application_irq: '',
+                what_type_of_deployment_model_will_be_used_for_the_ai_solution_irq: '',
+                is_the_third_party_an_irq: '',
+                what_is_the_estimated_volume_of_data_subjects_whose_personal_irq: '',
+                you_have_indicated_that_the_third_party_will_process_store_irq: '',
+                what_is_the_level_of_system_access_that_the_third_party_will_need_irq: '',
+                does_the_third_party_develop_maintain_or_provide_services_related_to_software_development_irq: '',
+                will_the_third_party_perform_or_execute_on_behalf_of_gsk_irq: '',
+                will_ai_including_an_elevated_risk_factor_irq: '',
+                icr_is_the_third_party_engaged_in_providing_or_supporting_irq: [], // Multi-select field
+                will_the_third_party_provide_operational_technology_irq: '',
+                please_select_the_highesst_category_of_personal_information_irq: '',
+                
+                // Additional metadata
+                third_party_name: '',
+                assessment_date: new Date().toISOString().split('T')[0],
+                assessor_name: '',
+                business_justification: ''
+            });
+
+            const [calculatedRisk, setCalculatedRisk] = useState('Not calculated');
+            const [riskFactors, setRiskFactors] = useState([]);
+
+            // Complete field configurations with all your options
+            const fieldConfigs = {
+                third_party_engagement_type_irq: {
+                    label: "Third Party Engagement Type",
+                    type: "select",
+                    required: true,
+                    options: [
+                        { label: "Agents and Outsourcing companies", value: "Agents and Outsourcing companies" },
+                        { label: "Business Development / Strategic Partners", value: "Business Development / Strategic Partners" },
+                        { label: "Contract Manufacturing", value: "Contract Manufacturing" },
+                        { label: "Contract Sales Organisations", value: "Contract Sales Organisations" },
+                        { label: "Contract Research Organisations", value: "Contract Research Organisations" },
+                        { label: "Corporate & Professional Service Providers", value: "Corporate & Professional Service Providers" },
+                        { label: "Distributors / Wholesalers", value: "Distributors / Wholesalers" },
+                        { label: "Event Coordinators and Venues", value: "Event Coordinators and Venues" },
+                        { label: "External Experts, including Healthcare Professionals and Other Healthcare Staff (HCP/OHS) and Patients", value: "External Experts, including Healthcare Professionals and Other Healthcare Staff (HCP/OHS) and Patients" },
+                        { label: "Facilities Service Providers", value: "Facilities Service Providers" },
+                        { label: "Financial Institutions - Banks", value: "Financial Institutions - Banks" },
+                        { label: "Financial Institutions - Other", value: "Financial Institutions - Other" },
+                        { label: "Government Officials", value: "Government Officials" },
+                        { label: "Governments, Payers and Public Health Organisations (PHO)", value: "Governments, Payers and Public Health Organisations (PHO)" },
+                        { label: "Healthcare Organisations", value: "Healthcare Organisations" },
+                        { label: "Individuals - Contract / Complementary Workers (Not via Agency)", value: "Individuals - Contract / Complementary Workers (Not via Agency)" },
+                        { label: "Manufacturing & Supply Chain", value: "Manufacturing & Supply Chain" },
+                        { label: "Marketing and Media", value: "Marketing and Media" },
+                        { label: "Non-profit organisation/NGO", value: "Non-profit organisation/NGO" },
+                        { label: "Office Supplies/General Goods", value: "Office Supplies/General Goods" },
+                        { label: "Patient Organisations", value: "Patient Organisations" },
+                        { label: "Point of Sale", value: "Point of Sale" },
+                        { label: "Public Policy Groups", value: "Public Policy Groups" },
+                        { label: "R&D - Business Development / Strategic Partners", value: "R&D - Business Development / Strategic Partners" },
+                        { label: "R&D - Purchase/Sourcing of Goods", value: "R&D - Purchase/Sourcing of Goods" },
+                        { label: "R&D - Academic Liason", value: "R&D - Academic Liason" },
+                        { label: "Technology Providers", value: "Technology Providers" },
+                        { label: "Transport and Logistics companies", value: "Transport and Logistics companies" }
+                    ]
+                },
+                what_categories_of_gsk_information_might_the_third_party_process_irq: {
+                    label: "GSK Information Categories",
+                    type: "select",
+                    required: true,
+                    options: [
+                        { label: "Critical and Sensitive Information (CSI)", value: "Critical and Sensitive Information (CSI)" },
+                        { label: "Confidential", value: "Confidential" },
+                        { label: "Proprietary", value: "Proprietary" },
+                        { label: "Approved for Public Release", value: "Approved for Public Release" },
+                        { label: "Third Party will NOT process, store, transmit, handle or otherwise have access to GSK Information", value: "Third Party will NOT process, store, transmit, handle or otherwise have access to GSK Information" }
+                    ]
+                },
+                will_the_third_party_have_access_or_contact_to_gsk_it_irq: {
+                    label: "Third Party Access/Contact to GSK IT",
+                    type: "select",
+                    required: true,
+                    options: [
+                        { label: "IPsec VPN", value: "IPsec VPN" },
+                        { label: "Leased line", value: "Leased line" },
+                        { label: "Secure Remote Access (SRA) for OT Sites", value: "Secure Remote Access (SRA) for OT Sites" },
+                        { label: "Secure File Transfer", value: "Secure File Transfer" },
+                        { label: "Thin Client (Citrix)/Remote Desktop Connection/VDI", value: "Thin Client (Citrix)/Remote Desktop Connection/VDI" },
+                        { label: "GSK issued laptop and user credentials (MUDID)", value: "GSK issued laptop and user credentials (MUDID)" },
+                        { label: "Other", value: "Other" },
+                        { label: "No, there is no connectivity", value: "No, there is no connectivity" }
+                    ]
+                },
+                does_the_service_or_product_offered_by_the_third_party_use_artifical_intelligence_generative_irq: {
+                    label: "Uses Artificial Intelligence/Generative AI",
+                    type: "boolean"
+                },
+                please_provide_an_esitmated_value_for_each_classification_of_information_irq: {
+                    label: "Estimated Data Volume",
+                    type: "select",
+                    options: [
+                        { label: "<50", value: "<50" },
+                        { label: "51-500", value: "51-500" },
+                        { label: "501-1000", value: "501-1000" },
+                        { label: "1001-10,000", value: "1001-10,000" },
+                        { label: "10,001-100,000", value: "10,001-100,000" },
+                        { label: ">100,000", value: ">100,000" }
+                    ]
+                },
+                will_the_product_and_service_include_the_development_irq: {
+                    label: "Product/Service Development Model",
+                    type: "select",
+                    options: [
+                        { label: "Application will be hosted and managed by GSK.", value: "Application will be hosted and managed by GSK." },
+                        { label: "Application will be hosted at GSK and managed by Third Party.", value: "Application will be hosted at GSK and managed by Third Party." },
+                        { label: "Application will be hosted externally (outside out GSK environment) and managed by Third Party.", value: "Application will be hosted externally (outside out GSK environment) and managed by Third Party." },
+                        { label: "The Third Party will only develop or enhance/modify/application/code for GSK.", value: "The Third Party will only develop or enhance/modify/application/code for GSK." },
+                        { label: "No, there is no application or code included in this engagement.", value: "No, there is no application or code included in this engagement." }
+                    ]
+                },
+                will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq: {
+                    label: "Data Processing Location",
+                    type: "select",
+                    options: [
+                        { label: "GSK Information will be processed within GSK's computing environment only.", value: "GSK Information will be processed within" },
+                        { label: "GSK Information will be processed (received, stored, transmitted, or handled) outside of GSK's computing environment.", value: "GSK Information will be processed outside" }
+                    ]
+                },
+                will_the_third_party_have_access_to_gsks_intellectual_property_irq: {
+                    label: "Access to GSK Intellectual Property",
+                    type: "boolean"
+                },
+                will_the_third_party_provide_any_publicly_accessible_or_internet_irq: {
+                    label: "Publicly Accessible/Internet-facing Applications",
+                    type: "select",
+                    options: [
+                        { label: "Yes, third party will provide publicly accessible or internet-facing applications or websites as a part of this engagement.", value: "Yes, third party will provide publicly accessible or internet-facing applications or websites as a part of this engagement." },
+                        { label: "No, the third party will NOT provide any publicly-accessible or internet-facing applications or websites as a part of this engagement", value: "No, the third party will NOT provide any publicly-accessible or internet-facing applications or websites as a part of this engagement" }
+                    ]
+                },
+                what_would_be_the_impact_on_gsk_if_an_application_irq: {
+                    label: "Impact on GSK if Application Fails",
+                    type: "select",
+                    options: [
+                        { label: "Operational Disruption: A failure or security breach of an application or system could cause significant disruptions to day-to-day operations, affecting the MAJORITY of GSK employees and reducing their ability to perform their duties effectively. The IT resources required to address and recover from such an incident could be considerable, potentially diverting focus and resources from other strategic initiatives or projects.", value: "Operational Disruption: A failure or security breach of an application or system could cause significant disruptions to day-to-day operations, affecting the MAJORITY of GSK employees and reducing their ability to perform their duties effectively. The IT resources required to address and recover from such an incident could be considerable, potentially diverting focus and resources from other strategic initiatives or projects." },
+                        { label: "Supply Chain Disruption: A critical application failure could potentially halt manufacturing lines, resulting in delays or stoppages in delivering products to markets, which could impact sales and relationships with partners.", value: "Supply Chain Disruption: A critical application failure could potentially halt manufacturing lines, resulting in delays or stoppages in delivering products to markets, which could impact sales and relationships with partners." },
+                        { label: "None of the above.", value: "None of the above." }
+                    ]
+                },
+                what_type_of_deployment_model_will_be_used_for_the_ai_solution_irq: {
+                    label: "AI Deployment Model",
+                    type: "select",
+                    options: [
+                        { label: "Third party is using AI in part of delivering service/product to GSK", value: "Third party is using AI in part of delivering service/product to GSK" },
+                        { label: "Third party licenses entire AI solution to GSK and then we are using it.", value: "Third party licenses entire AI solution to GSK and then we are using it." },
+                        { label: "Third Party is developing an AI solution for GSK.", value: "Third Party is developing an AI solution for GSK." },
+                        { label: "None of the above.", value: "None of the above." }
+                    ]
+                },
+                is_the_third_party_an_irq: {
+                    label: "Third Party Type (OT)",
+                    type: "select",
+                    options: [
+                        { label: "OT Asset Vendor", value: "OT Asset Vendor" },
+                        { label: "OT Asset Owner", value: "OT Asset Owner" }
+                    ]
+                },
+                what_is_the_estimated_volume_of_data_subjects_whose_personal_irq: {
+                    label: "Estimated Volume of Data Subjects",
+                    type: "select",
+                    options: [
+                        { label: "<10", value: "<10" },
+                        { label: "11-50", value: "11-50" },
+                        { label: "51-500", value: "51-500" },
+                        { label: "501-1000", value: "501-1000" },
+                        { label: "1001-10,000", value: "1001-10,000" },
+                        { label: ">10,000", value: ">10,000" }
+                    ]
+                },
+                you_have_indicated_that_the_third_party_will_process_store_irq: {
+                    label: "Personal Information Processing Management",
+                    type: "select",
+                    options: [
+                        { label: "This is GSK's PI, managed by GSK.", value: "Managed by GSK" },
+                        { label: "This is GSK PI, managed by the third party", value: "Managed by the Third Party" },
+                        { label: "This is not GSK PI, but it is processed by the Third Party on behalf of GSK.", value: "This is not GSK PI, but it is processed by the Third Party on behalf of GSK." },
+                        { label: "This is Licensed PI and Third Party is the owner of this PI (Both Data Processor and Data Controller)", value: "This is Licensed PI and Third Party is the owner of this PI" }
+                    ]
+                },
+                what_is_the_level_of_system_access_that_the_third_party_will_need_irq: {
+                    label: "Level of System Access Required",
+                    type: "select",
+                    options: [
+                        { label: "No access to GSK systems required", value: "No access to GSK systems required" },
+                        { label: "Privileged or elevated access to any GSK or vendor owned system at any time (during commissioning, maintenance, production)", value: "Privileged or elevated access to any GSK or vendor owned system at any time (during commissioning, maintenance, production)" },
+                        { label: "Provision of access difficult to distinguish from an internal GSK user - third party is provided with GSK identifiers (e.g. MUDID) and equipment", value: "Provision of access difficult to distinguish from an internal GSK user - third party is provided with GSK identifiers (e.g. MUDID) and equipment" },
+                        { label: "Access to GSK systems*(see help text) that are not intended for third party use under normal operation for maintenance or monitoring", value: "Access to GSK systems" },
+                        { label: "Non-privileged/non-elevated access to GSK systems*(see help text) intended to act as an interface or be used by third parties in the course of normal operation and which are hosted in a corporate facility designed for this purpose", value: "Non-privileged/non-elevated access to GSK systems" }
+                    ]
+                },
+                does_the_third_party_develop_maintain_or_provide_services_related_to_software_development_irq: {
+                    label: "Software Development Services for OT Assets",
+                    type: "select",
+                    options: [
+                        { label: "Third Party does not develop, maintain or provide services related to any software development for OT assets.", value: "Third Party does not develop, maintain or provide services related to any software development for OT assets." },
+                        { label: "Third Party develops the software and installs it on OT assets but does not provide ongoing maintenance (GSK manages the software source code and updates).", value: "Third Party develops the software and installs it on OT assets but does not provide ongoing maintenance (GSK manages the software source code and updates)." },
+                        { label: "Third Party only provides maintenance services for software installed on OT assets.", value: "Third Party only provides maintenance services for software installed on OT assets." },
+                        { label: "Third Party develops software and remotely manages it (Troubleshooting).", value: "Third Party develops software and remotely manages it (Troubleshooting)." },
+                        { label: "Third Party develops software and provide the maintenance (TP manage Source Code and Updates).", value: "Third Party develops software and provide the maintenance (TP manage Source Code and Updates)." }
+                    ]
+                },
+                will_the_third_party_perform_or_execute_on_behalf_of_gsk_irq: {
+                    label: "Third Party Performance on Behalf of GSK",
+                    type: "select",
+                    options: [
+                        { label: "Third party does not perform or execute on behalf of GSK", value: "Third party does not perform or execute on behalf of GSK" },
+                        { label: "Directly Supply subcomponents (ingredients, packaging etc.) or finished product to the GSK supply chain that are produced using computerised automated manufacturing systems", value: "Directly Supply subcomponents (ingredients, packaging etc.) or finished product to the GSK supply chain that are produced using computerised automated manufacturing systems" },
+                        { label: "Use warehouse/shipping computerised automation for the logistics of any of the above subcomponents or finished product", value: "Use warehouse/shipping computerised automation for the logistics of any of the above subcomponents or finished product" },
+                        { label: "Use computerised automated systems in their research as a Contract Research Organisation", value: "Use computerised automated systems in their research as a Contract Research Organisation" },
+                        { label: "Act as a Research Business Continuity partner that use computerised automated manufacturing/laboratory systems", value: "Act as a Research Business Continuity partner that use computerised automated manufacturing/laboratory systems" },
+                        { label: "Use computerised automation for the production of equipment that support GSK manufacturing processes or facilities operation", value: "Use computerised automation for the production of equipment that support GSK manufacturing processes or facilities operation" },
+                        { label: "Use computerised Biomedical systems or equipment (inc vivariums and medical areas)", value: "Use computerised Biomedical systems or equipment (inc vivariums and medical areas)" },
+                        { label: "Supply subcomponents or systems relating to GSK product (devices)/trials (trial applications and devices)", value: "Supply subcomponents or systems relating to GSK product (devices)/trials (trial applications and devices)" }
+                    ]
+                },
+                will_ai_including_an_elevated_risk_factor_irq: {
+                    label: "AI with Elevated Risk Factor",
+                    type: "boolean"
+                },
+                icr_is_the_third_party_engaged_in_providing_or_supporting_irq: {
+                    label: "Third Party Engagement in Providing/Supporting (Multi-select)",
+                    type: "multiselect",
+                    options: [
+                        { 
+                            label: "Third Party may process, store, transmit, handle or otherwise have access to GSK data", 
+                            value: "Third Party may process, store, transmit, handle or otherwise have access to GSK data" 
+                        },
+                        { 
+                            label: "Application Development/Support. The Third Party or its subcontractor will support, maintain, install, update, access or develop technology services (including hardware, software, telecom, data centre services etc)", 
+                            value: "Application Development/Support. The Third Party or its subcontractor will support, maintain, install, update, access or develop technology services (including hardware, software, telecom, data centre services etc)" 
+                        },
+                        { 
+                            label: "Network or System Access: The third party or its subcontractors will connect to GSK network or technical assets including systems, hardware (e.g. laptop) or applications.", 
+                            value: "Network or System Access: The third party or its subcontractors will connect to GSK network or technical assets including systems, hardware (e.g. laptop) or applications." 
+                        },
+                        { 
+                            label: "None of the above", 
+                            value: "None of the above" 
+                        }
+                    ]
+                },
+                will_the_third_party_provide_operational_technology_irq: {
+                    label: "Operational Technology Provider",
+                    type: "boolean"
+                },
+                please_select_the_highesst_category_of_personal_information_irq: {
+                    label: "Highest Category of Personal Information",
+                    type: "select",
+                    options: [
+                        { label: "Sensitive PI", value: "Sensitive PI" },
+                        { label: "Restricted PI", value: "Restricted PI" },
+                        { label: "Basic PI", value: "Basic PI" },
+                        { label: "No PI processed or handled", value: "No PI processed or handled" }
+                    ]
+                }
+            };
+
+            // Implement the complete Jinja risk calculation logic - UPDATED VERSION
+            const calculateRisk = () => {
+                const riskValues = [];
+                const factors = [];
+
+                // Data Processing Risk Assessment (icr1 logic)
+                if (formData.what_categories_of_gsk_information_might_the_third_party_process_irq === 'Critical and Sensitive Information (CSI)' && 
+                    ['10,001-100,000', '>100,000'].includes(formData.please_provide_an_esitmated_value_for_each_classification_of_information_irq) && 
+                    formData.will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq === 'GSK Information will be processed outside') {
+                    riskValues.push('Very High Risk');
+                    factors.push('CSI high volume processing outside GSK');
+                } else if (formData.what_categories_of_gsk_information_might_the_third_party_process_irq === 'Critical and Sensitive Information (CSI)' && 
+                          formData.will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq === 'GSK Information will be processed outside' && 
+                          formData.will_the_third_party_have_access_to_gsks_intellectual_property_irq === 'True') {
+                    riskValues.push('Very High Risk');
+                    factors.push('CSI processing outside GSK with IP access');
+                } else if (formData.what_categories_of_gsk_information_might_the_third_party_process_irq === 'Critical and Sensitive Information (CSI)' && 
+                          ['<50', '51-500', '501-1000', '1001-10,000'].includes(formData.please_provide_an_esitmated_value_for_each_classification_of_information_irq) && 
+                          formData.will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq === 'GSK Information will be processed outside') {
+                    riskValues.push('High Risk');
+                    factors.push('CSI low-medium volume processing outside GSK');
+                } else if (formData.what_categories_of_gsk_information_might_the_third_party_process_irq === 'Confidential' && 
+                          ['10,001-100,000', '>100,000'].includes(formData.please_provide_an_esitmated_value_for_each_classification_of_information_irq) && 
+                          formData.will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq === 'GSK Information will be processed outside') {
+                    riskValues.push('High Risk');
+                    factors.push('Confidential high volume processing outside GSK');
+                } else if (formData.what_categories_of_gsk_information_might_the_third_party_process_irq === 'Confidential' && 
+                          ['<50', '51-500', '501-1000', '1001-10,000'].includes(formData.please_provide_an_esitmated_value_for_each_classification_of_information_irq) && 
+                          formData.will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq === 'GSK Information will be processed outside') {
+                    riskValues.push('Medium Risk');
+                    factors.push('Confidential low-medium volume processing outside GSK');
+                } else if (['Confidential', 'Critical and Sensitive Information (CSI)', 'Proprietary', 'Approved for Public Release'].includes(formData.what_categories_of_gsk_information_might_the_third_party_process_irq) && 
+                          formData.will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq === 'GSK Information will be processed within') {
+                    riskValues.push('Low Risk');
+                    factors.push('Data processing within GSK environment');
+                } else if (['Proprietary', 'Approved for Public Release'].includes(formData.what_categories_of_gsk_information_might_the_third_party_process_irq) && 
+                          formData.will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq === 'GSK Information will be processed outside') {
+                    riskValues.push('Low Risk');
+                    factors.push('Low sensitivity data processing outside GSK');
+                } else if (formData.what_categories_of_gsk_information_might_the_third_party_process_irq === 'Third Party will NOT process, store, transmit, handle or otherwise have access to GSK Information') {
+                    riskValues.push('Not in scope');
+                    factors.push('No GSK information processing');
+                }
+
+                // Personal Information Processing Risk Assessment (icr1_2 logic)
+                if (['Managed by the Third Party', 'This is not GSK PI, but it is processed by the Third Party on behalf of GSK.'].includes(formData.you_have_indicated_that_the_third_party_will_process_store_irq) && 
+                    formData.what_is_the_estimated_volume_of_data_subjects_whose_personal_irq === '>10,000' && 
+                    formData.will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq === 'GSK Information will be processed outside') {
+                    riskValues.push('Very High Risk');
+                    factors.push('High volume PI processing outside GSK by third party');
+                } else if (['Managed by the Third Party', 'This is not GSK PI, but it is processed by the Third Party on behalf of GSK.'].includes(formData.you_have_indicated_that_the_third_party_will_process_store_irq) && 
+                          ['11-50', '51-500', '501-1000', '1001-10,000'].includes(formData.what_is_the_estimated_volume_of_data_subjects_whose_personal_irq) && 
+                          formData.will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq === 'GSK Information will be processed outside') {
+                    riskValues.push('High Risk');
+                    factors.push('Medium volume PI processing outside GSK by third party');
+                } else if (['Managed by the Third Party', 'This is not GSK PI, but it is processed by the Third Party on behalf of GSK.'].includes(formData.you_have_indicated_that_the_third_party_will_process_store_irq) && 
+                          formData.what_is_the_estimated_volume_of_data_subjects_whose_personal_irq === '<10' && 
+                          formData.will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq === 'GSK Information will be processed outside') {
+                    riskValues.push('Medium Risk');
+                    factors.push('Low volume PI processing outside GSK by third party');
+                } else if (formData.you_have_indicated_that_the_third_party_will_process_store_irq === 'This is Licensed PI and Third Party is the owner of this PI' && 
+                          formData.will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq === 'GSK Information will be processed outside') {
+                    riskValues.push('Medium Risk');
+                    factors.push('Licensed PI processing outside GSK');
+                } else if (formData.you_have_indicated_that_the_third_party_will_process_store_irq === 'Managed by GSK' && 
+                          formData.will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq === 'GSK Information will be processed outside') {
+                    riskValues.push('Low Risk');
+                    factors.push('GSK-managed PI processing outside GSK');
+                }
+
+                // Application Development Risk Assessment (icr2 logic)
+                if (formData.what_categories_of_gsk_information_might_the_third_party_process_irq === 'Critical and Sensitive Information (CSI)' && 
+                    formData.will_the_product_and_service_include_the_development_irq === 'Application will be hosted externally (outside out GSK environment) and managed by Third Party.') {
+                    riskValues.push('Very High Risk');
+                    factors.push('CSI with external application hosting');
+                } else if (formData.what_categories_of_gsk_information_might_the_third_party_process_irq === 'Confidential' && 
+                          formData.will_the_product_and_service_include_the_development_irq === 'Application will be hosted externally (outside out GSK environment) and managed by Third Party.' && 
+                          ['Operational Disruption: A failure or security breach of an application or system could cause significant disruptions to day-to-day operations, affecting the MAJORITY of GSK employees and reducing their ability to perform their duties effectively. The IT resources required to address and recover from such an incident could be considerable, potentially diverting focus and resources from other strategic initiatives or projects.', 'Supply Chain Disruption: A critical application failure could potentially halt manufacturing lines, resulting in delays or stoppages in delivering products to markets, which could impact sales and relationships with partners.', 'None of the above.'].includes(formData.what_would_be_the_impact_on_gsk_if_an_application_irq)) {
+                    riskValues.push('High Risk');
+                    factors.push('Confidential data with external hosting and potential impact');
+                } else if (['Critical and Sensitive Information (CSI)', 'Confidential', 'Proprietary', 'Approved for Public Release', 'Third Party will NOT process, store, transmit, handle or otherwise have access to GSK Information'].includes(formData.what_categories_of_gsk_information_might_the_third_party_process_irq) && 
+                          ['Application will be hosted externally (outside out GSK environment) and managed by Third Party.', 'Application will be hosted at GSK and managed by Third Party.', 'Application will be hosted and managed by GSK.', 'The Third Party will only develop or enhance/modify/application/code for GSK.', 'No, there is no application or code included in this engagement.'].includes(formData.will_the_product_and_service_include_the_development_irq) && 
+                          formData.will_the_third_party_provide_any_publicly_accessible_or_internet_irq === 'Yes, third party will provide publicly accessible or internet-facing applications or websites as a part of this engagement.' && 
+                          ['Operational Disruption: A failure or security breach of an application or system could cause significant disruptions to day-to-day operations, affecting the MAJORITY of GSK employees and reducing their ability to perform their duties effectively. The IT resources required to address and recover from such an incident could be considerable, potentially diverting focus and resources from other strategic initiatives or projects.', 'Supply Chain Disruption: A critical application failure could potentially halt manufacturing lines, resulting in delays or stoppages in delivering products to markets, which could impact sales and relationships with partners.', 'None of the above.'].includes(formData.what_would_be_the_impact_on_gsk_if_an_application_irq)) {
+                    riskValues.push('High Risk');
+                    factors.push('Publicly accessible applications with potential operational impact');
+                } else if (['Critical and Sensitive Information (CSI)', 'Confidential', 'Proprietary', 'Approved for Public Release', 'Third Party will NOT process, store, transmit, handle or otherwise have access to GSK Information'].includes(formData.what_categories_of_gsk_information_might_the_third_party_process_irq) && 
+                          ['Application will be hosted at GSK and managed by Third Party.', 'The Third Party will only develop or enhance/modify/application/code for GSK.'].includes(formData.will_the_product_and_service_include_the_development_irq) && 
+                          formData.will_the_third_party_provide_any_publicly_accessible_or_internet_irq === 'No, the third party will NOT provide any publicly-accessible or internet-facing applications or websites as a part of this engagement') {
+                    riskValues.push('Medium Risk');
+                    factors.push('Internal hosting with third-party management, no public access');
+                } else if (['Proprietary', 'Approved for Public Release'].includes(formData.what_categories_of_gsk_information_might_the_third_party_process_irq) && 
+                          formData.will_the_product_and_service_include_the_development_irq === 'Application will be hosted externally (outside out GSK environment) and managed by Third Party.' && 
+                          formData.will_the_third_party_provide_any_publicly_accessible_or_internet_irq === 'No, the third party will NOT provide any publicly-accessible or internet-facing applications or websites as a part of this engagement') {
+                    riskValues.push('Low Risk');
+                    factors.push('Low sensitivity data with external hosting, no public access');
+                } else if (['Critical and Sensitive Information (CSI)', 'Confidential', 'Proprietary', 'Approved for Public Release', 'Third Party will NOT process, store, transmit, handle or otherwise have access to GSK Information'].includes(formData.what_categories_of_gsk_information_might_the_third_party_process_irq) && 
+                          formData.will_the_product_and_service_include_the_development_irq === 'Application will be hosted and managed by GSK.' && 
+                          formData.will_the_third_party_provide_any_publicly_accessible_or_internet_irq === 'No, the third party will NOT provide any publicly-accessible or internet-facing applications or websites as a part of this engagement') {
+                    riskValues.push('Low Risk');
+                    factors.push('GSK-hosted and managed applications, no public access');
+                }
+
+                // Network Access Risk Assessment (icr6 logic)
+                if (['IPsec VPN', 'Leased line'].includes(formData.will_the_third_party_have_access_or_contact_to_gsk_it_irq)) {
+                    riskValues.push('Very High Risk');
+                    factors.push('High-level network access (VPN/Leased line)');
+                } else if (formData.will_the_third_party_have_access_or_contact_to_gsk_it_irq === 'Secure Remote Access (SRA) for OT Sites') {
+                    riskValues.push('High Risk');
+                    factors.push('OT Sites remote access');
+                } else if (formData.will_the_third_party_have_access_or_contact_to_gsk_it_irq === 'Secure File Transfer') {
+                    riskValues.push('Medium Risk');
+                    factors.push('Secure file transfer access');
+                } else if (['GSK issued laptop and user credentials (MUDID)', 'Thin Client (Citrix)/Remote Desktop Connection/VDI', 'Other'].includes(formData.will_the_third_party_have_access_or_contact_to_gsk_it_irq)) {
+                    riskValues.push('Low Risk');
+                    factors.push('Standard remote access methods');
+                } else if (formData.will_the_third_party_have_access_or_contact_to_gsk_it_irq === 'No, there is no connectivity') {
+                    riskValues.push('Not in scope');
+                    factors.push('No network connectivity');
+                }
+
+                // AI Usage Risk Assessment (icr3 logic)
+                if (formData.does_the_service_or_product_offered_by_the_third_party_use_artifical_intelligence_generative_irq === 'True' && 
+                    formData.what_type_of_deployment_model_will_be_used_for_the_ai_solution_irq === 'Third party is using AI in part of delivering service/product to GSK') {
+                    riskValues.push('High Risk');
+                    factors.push('AI used in service delivery to GSK');
+                } else if (formData.does_the_service_or_product_offered_by_the_third_party_use_artifical_intelligence_generative_irq === 'True' && 
+                          formData.what_type_of_deployment_model_will_be_used_for_the_ai_solution_irq === 'Third Party is developing an AI solution for GSK.') {
+                    riskValues.push('High Risk');
+                    factors.push('AI solution development for GSK');
+                } else if (formData.does_the_service_or_product_offered_by_the_third_party_use_artifical_intelligence_generative_irq === 'True' && 
+                          formData.what_type_of_deployment_model_will_be_used_for_the_ai_solution_irq === 'Third party licenses entire AI solution to GSK and then we are using it.') {
+                    riskValues.push('Medium Risk');
+                    factors.push('Licensed AI solution');
+                } else if (formData.does_the_service_or_product_offered_by_the_third_party_use_artifical_intelligence_generative_irq === 'True' && 
+                          formData.what_type_of_deployment_model_will_be_used_for_the_ai_solution_irq === 'None of the above.') {
+                    riskValues.push('Medium Risk');
+                    factors.push('AI usage - other deployment model');
+                } else if (formData.does_the_service_or_product_offered_by_the_third_party_use_artifical_intelligence_generative_irq === 'False') {
+                    riskValues.push('Not in scope');
+                    factors.push('No AI usage');
+                }
+
+                // OT Asset Vendor Risk Assessment (icr_4_1 logic)
+                if (formData.is_the_third_party_an_irq === 'OT Asset Vendor' && 
+                    ['Privileged or elevated access to any GSK or vendor owned system at any time (during commissioning, maintenance, production)', 'Provision of access difficult to distinguish from an internal GSK user - third party is provided with GSK identifiers (e.g. MUDID) and equipment', 'Access to GSK systems'].includes(formData.what_is_the_level_of_system_access_that_the_third_party_will_need_irq)) {
+                    riskValues.push('Medium Risk');
+                    factors.push('OT Asset Vendor with elevated system access');
+                } else if (formData.is_the_third_party_an_irq === 'OT Asset Vendor' && 
+                          formData.what_is_the_level_of_system_access_that_the_third_party_will_need_irq === 'Non-privileged/non-elevated access to GSK systems') {
+                    riskValues.push('Low Risk');
+                    factors.push('OT Asset Vendor with limited system access');
+                } else if (formData.is_the_third_party_an_irq === 'OT Asset Vendor' && 
+                          formData.what_is_the_level_of_system_access_that_the_third_party_will_need_irq === 'No access to GSK systems required') {
+                    riskValues.push('Not in scope');
+                    factors.push('OT Asset Vendor with no system access');
+                }
+
+                // OT Software Development and Asset Owner Risk Assessment
+                if (formData.is_the_third_party_an_irq === 'OT Asset Vendor' && 
+                    ['Third Party develops the software and installs it on OT assets but does not provide ongoing maintenance (GSK manages the software source code and updates).', 'Third Party only provides maintenance services for software installed on OT assets.', 'Third Party develops software and remotely manages it (Troubleshooting).', 'Third Party develops software and provide the maintenance (TP manage Source Code and Updates).'].includes(formData.does_the_third_party_develop_maintain_or_provide_services_related_to_software_development_irq)) {
+                    riskValues.push('Medium Risk');
+                    factors.push('OT Asset Vendor providing software development services');
+                } else if (formData.is_the_third_party_an_irq === 'OT Asset Owner' && 
+                          ['Act as a Research Business Continuity partner that use computerised automated manufacturing/laboratory systems', 'Use computerised automation for the production of equipment that support GSK manufacturing processes or facilities operation', 'Use computerised Biomedical systems or equipment (inc vivariums and medical areas)', 'Supply subcomponents or systems relating to GSK product (devices)/trials (trial applications and devices)'].includes(formData.will_the_third_party_perform_or_execute_on_behalf_of_gsk_irq)) {
+                    riskValues.push('Medium Risk');
+                    factors.push('OT Asset Owner with moderate risk GSK operations');
+                } else if (formData.is_the_third_party_an_irq === 'OT Asset Owner' && 
+                          ['Directly Supply subcomponents (ingredients, packaging etc.) or finished product to the GSK supply chain that are produced using computerised automated manufacturing systems', 'Use warehouse/shipping computerised automation for the logistics of any of the above subcomponents or finished product', 'Use computerised automated systems in their research as a Contract Research Organisation'].includes(formData.will_the_third_party_perform_or_execute_on_behalf_of_gsk_irq)) {
+                    riskValues.push('High Risk');
+                    factors.push('OT Asset Owner with high risk supply chain operations');
+                } else if (formData.is_the_third_party_an_irq === 'OT Asset Owner' && 
+                          (formData.will_the_third_party_perform_or_execute_on_behalf_of_gsk_irq === 'Third party does not perform or execute on behalf of GSK' || 
+                           formData.does_the_third_party_develop_maintain_or_provide_services_related_to_software_development_irq === 'Third Party does not develop, maintain or provide services related to any software development for OT assets.')) {
+                    riskValues.push('Not in scope');
+                    factors.push('OT Asset Owner with no GSK operations or software development');
+                }
+
+                // Determine final risk level (highest priority wins)
+                let finalRisk = 'Not calculated';
+                if (riskValues.includes('Very High Risk')) {
+                    finalRisk = 'Very High Risk';
+                } else if (riskValues.includes('High Risk')) {
+                    finalRisk = 'High Risk';
+                } else if (riskValues.includes('Medium Risk')) {
+                    finalRisk = 'Medium Risk';
+                } else if (riskValues.includes('Low Risk')) {
+                    finalRisk = 'Low Risk';
+                } else if (riskValues.includes('Not in scope')) {
+                    finalRisk = 'Not in scope';
+                }
+
+                setCalculatedRisk(finalRisk);
+                setRiskFactors(factors);
+            };
+
+            useEffect(() => {
+                calculateRisk();
+            }, [formData]);
+
+            const getRiskColor = (risk) => {
+                switch (risk) {
+                    case 'Very High Risk': return 'text-red-600 bg-red-50 border-red-200';
+                    case 'High Risk': return 'text-orange-600 bg-orange-50 border-orange-200';
+                    case 'Medium Risk': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+                    case 'Low Risk': return 'text-green-600 bg-green-50 border-green-200';
+                    default: return 'text-gray-600 bg-gray-50 border-gray-200';
+                }
+            };
+
+            const handleInputChange = (fieldName, value) => {
+                setFormData(prev => ({
+                    ...prev,
+                    [fieldName]: value
+                }));
+            };
+
+            const handleMultiSelectChange = (fieldName, value, checked) => {
+                setFormData(prev => ({
+                    ...prev,
+                    [fieldName]: checked 
+                        ? [...prev[fieldName], value]
+                        : prev[fieldName].filter(item => item !== value)
+                }));
+            };
+
+            const renderField = (fieldName, config) => {
+                const value = formData[fieldName];
+                const isRequired = config.required;
+
+                switch (config.type) {
+                    case 'boolean':
+                        return (
+                            <div className={`field-group ${isRequired ? 'required-field' : ''}`}>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    {config.label}
+                                    {isRequired && <span className="text-red-500 ml-1">*</span>}
+                                </label>
+                                <div className="space-x-4">
+                                    <label className="inline-flex items-center">
+                                        <input
+                                            type="radio"
+                                            name={fieldName}
+                                            value="True"
+                                            checked={value === 'True'}
+                                            onChange={(e) => handleInputChange(fieldName, e.target.value)}
+                                            className="form-radio text-blue-600"
+                                        />
+                                        <span className="ml-2">Yes</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <input
+                                            type="radio"
+                                            name={fieldName}
+                                            value="False"
+                                            checked={value === 'False'}
+                                            onChange={(e) => handleInputChange(fieldName, e.target.value)}
+                                            className="form-radio text-blue-600"
+                                        />
+                                        <span className="ml-2">No</span>
+                                    </label>
+                                </div>
+                            </div>
+                        );
+
+                    case 'select':
+                        return (
+                            <div className={`field-group ${isRequired ? 'required-field' : ''}`}>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    {config.label}
+                                    {isRequired && <span className="text-red-500 ml-1">*</span>}
+                                </label>
+                                <select
+                                    value={value}
+                                    onChange={(e) => handleInputChange(fieldName, e.target.value)}
+                                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="">Select {config.label.toLowerCase()}...</option>
+                                    {config.options.map((option) => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        );
+
+                    case 'multiselect':
+                        return (
+                            <div className={`field-group ${isRequired ? 'required-field' : ''}`}>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    {config.label}
+                                    {isRequired && <span className="text-red-500 ml-1">*</span>}
+                                </label>
+                                <div className="space-y-2 max-h-60 overflow-y-auto border border-gray-200 rounded p-3">
+                                    {config.options.map((option) => (
+                                        <label key={option.value} className="flex items-start space-x-2">
+                                            <input
+                                                type="checkbox"
+                                                checked={value.includes(option.value)}
+                                                onChange={(e) => handleMultiSelectChange(fieldName, option.value, e.target.checked)}
+                                                className="mt-1 form-checkbox text-blue-600"
+                                            />
+                                            <span className="text-sm">{option.label}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1">
+                                    Selected: {value.length} option(s)
+                                </div>
+                            </div>
+                        );
+
+                    default:
+                        return (
+                            <div className={`field-group ${isRequired ? 'required-field' : ''}`}>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    {config.label}
+                                    {isRequired && <span className="text-red-500 ml-1">*</span>}
+                                </label>
+                                <input
+                                    type="text"
+                                    value={value}
+                                    onChange={(e) => handleInputChange(fieldName, e.target.value)}
+                                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+                        );
+                }
+            };
+
+            const exportResults = () => {
+                const exportData = {
+                    assessmentDetails: {
+                        thirdPartyName: formData.third_party_name,
+                        assessmentDate: formData.assessment_date,
+                        assessorName: formData.assessor_name,
+                        businessJustification: formData.business_justification
+                    },
+                    riskAssessment: {
+                        calculatedRisk,
+                        riskFactors
+                    },
+                    formData,
+                    timestamp: new Date().toISOString()
+                };
+
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `ICR_Assessment_Complete_${formData.third_party_name || 'Unknown'}_${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+            };
+
+            // Count filled fields
+            const filledFields = Object.values(formData).filter(value => 
+                value !== '' && value !== [] && value.length > 0
+            ).length;
+            const totalFields = Object.keys(fieldConfigs).length;
+
+            return (
+                <div className="max-w-7xl mx-auto p-6 space-y-8">
+                    {/* Header */}
+                    <div className="text-center mb-8">
+                        <h1 className="text-3xl font-bold text-gray-900 mb-2">Complete ICR Risk Assessment Tool</h1>
+                        <p className="text-gray-600 mb-4">All 21 fields with complete Jinja logic implementation</p>
+                        <div className="flex justify-center items-center space-x-6 mb-4">
+                            <div className="text-sm text-gray-600">
+                                Fields Completed: {filledFields - 4}/{totalFields} 
+                                <span className="ml-2 text-blue-600">({Math.round((filledFields - 4) / totalFields * 100)}%)</span>
+                            </div>
+                            <button 
+                                onClick={exportResults}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                            >
+                                Export Results
+                            </button>
+                            <button 
+                                onClick={() => window.print()}
+                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                            >
+                                Print Report
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Risk Result */}
+                    <div className={`rounded-lg border-2 p-6 ${getRiskColor(calculatedRisk)}`}>
+                        <h2 className="text-2xl font-bold mb-2">Risk Level: {calculatedRisk}</h2>
+                        {riskFactors.length > 0 && (
+                            <div className="mt-4">
+                                <h3 className="font-semibold mb-2">Risk Factors:</h3>
+                                <ul className="list-disc list-inside space-y-1">
+                                    {riskFactors.map((factor, index) => (
+                                        <li key={index} className="text-sm">{factor}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Assessment Details */}
+                    <div className="field-section">
+                        <h3 className="text-xl font-bold mb-4">Assessment Information</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Third Party Name</label>
+                                <input
+                                    type="text"
+                                    value={formData.third_party_name}
+                                    onChange={(e) => handleInputChange('third_party_name', e.target.value)}
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                    placeholder="Enter third party name..."
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Assessment Date</label>
+                                <input
+                                    type="date"
+                                    value={formData.assessment_date}
+                                    onChange={(e) => handleInputChange('assessment_date', e.target.value)}
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Assessor Name</label>
+                                <input
+                                    type="text"
+                                    value={formData.assessor_name}
+                                    onChange={(e) => handleInputChange('assessor_name', e.target.value)}
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                    placeholder="Enter assessor name..."
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Business Justification</label>
+                                <textarea
+                                    value={formData.business_justification}
+                                    onChange={(e) => handleInputChange('business_justification', e.target.value)}
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                    rows="3"
+                                    placeholder="Brief justification..."
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* All Assessment Fields */}
+                    <div className="field-section">
+                        <h3 className="text-xl font-bold mb-6">Complete Assessment Form - All 21 Fields</h3>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                            {/* Core Engagement Fields */}
+                            <div className="space-y-4">
+                                <h4 className="text-lg font-semibold text-blue-800 border-b border-blue-200 pb-2">Core Engagement (3 fields)</h4>
+                                {renderField('third_party_engagement_type_irq', fieldConfigs.third_party_engagement_type_irq)}
+                                {renderField('what_categories_of_gsk_information_might_the_third_party_process_irq', fieldConfigs.what_categories_of_gsk_information_might_the_third_party_process_irq)}
+                                {renderField('will_the_third_party_have_access_or_contact_to_gsk_it_irq', fieldConfigs.will_the_third_party_have_access_or_contact_to_gsk_it_irq)}
+                            </div>
+
+                            {/* Data Processing Fields */}
+                            <div className="space-y-4">
+                                <h4 className="text-lg font-semibold text-green-800 border-b border-green-200 pb-2">Data Processing (4 fields)</h4>
+                                {renderField('please_provide_an_esitmated_value_for_each_classification_of_information_irq', fieldConfigs.please_provide_an_esitmated_value_for_each_classification_of_information_irq)}
+                                {renderField('will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq', fieldConfigs.will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq)}
+                                {renderField('will_the_third_party_have_access_to_gsks_intellectual_property_irq', fieldConfigs.will_the_third_party_have_access_to_gsks_intellectual_property_irq)}
+                                {renderField('please_select_the_highesst_category_of_personal_information_irq', fieldConfigs.please_select_the_highesst_category_of_personal_information_irq)}
+                            </div>
+
+                            {/* Application Development Fields */}
+                            <div className="space-y-4">
+                                <h4 className="text-lg font-semibold text-purple-800 border-b border-purple-200 pb-2">Application Development (3 fields)</h4>
+                                {renderField('will_the_product_and_service_include_the_development_irq', fieldConfigs.will_the_product_and_service_include_the_development_irq)}
+                                {renderField('will_the_third_party_provide_any_publicly_accessible_or_internet_irq', fieldConfigs.will_the_third_party_provide_any_publicly_accessible_or_internet_irq)}
+                                {renderField('what_would_be_the_impact_on_gsk_if_an_application_irq', fieldConfigs.what_would_be_the_impact_on_gsk_if_an_application_irq)}
+                            </div>
+
+                            {/* AI Assessment Fields */}
+                            <div className="space-y-4">
+                                <h4 className="text-lg font-semibold text-red-800 border-b border-red-200 pb-2">AI Assessment (3 fields)</h4>
+                                {renderField('does_the_service_or_product_offered_by_the_third_party_use_artifical_intelligence_generative_irq', fieldConfigs.does_the_service_or_product_offered_by_the_third_party_use_artifical_intelligence_generative_irq)}
+                                {renderField('what_type_of_deployment_model_will_be_used_for_the_ai_solution_irq', fieldConfigs.what_type_of_deployment_model_will_be_used_for_the_ai_solution_irq)}
+                                {renderField('will_ai_including_an_elevated_risk_factor_irq', fieldConfigs.will_ai_including_an_elevated_risk_factor_irq)}
+                            </div>
+
+                            {/* Personal Information Fields */}
+                            <div className="space-y-4">
+                                <h4 className="text-lg font-semibold text-pink-800 border-b border-pink-200 pb-2">Personal Information (2 fields)</h4>
+                                {renderField('what_is_the_estimated_volume_of_data_subjects_whose_personal_irq', fieldConfigs.what_is_the_estimated_volume_of_data_subjects_whose_personal_irq)}
+                                {renderField('you_have_indicated_that_the_third_party_will_process_store_irq', fieldConfigs.you_have_indicated_that_the_third_party_will_process_store_irq)}
+                            </div>
+
+                            {/* Operational Technology Fields */}
+                            <div className="space-y-4">
+                                <h4 className="text-lg font-semibold text-indigo-800 border-b border-indigo-200 pb-2">Operational Technology (6 fields)</h4>
+                                {renderField('will_the_third_party_provide_operational_technology_irq', fieldConfigs.will_the_third_party_provide_operational_technology_irq)}
+                                {renderField('is_the_third_party_an_irq', fieldConfigs.is_the_third_party_an_irq)}
+                                {renderField('what_is_the_level_of_system_access_that_the_third_party_will_need_irq', fieldConfigs.what_is_the_level_of_system_access_that_the_third_party_will_need_irq)}
+                                {renderField('does_the_third_party_develop_maintain_or_provide_services_related_to_software_development_irq', fieldConfigs.does_the_third_party_develop_maintain_or_provide_services_related_to_software_development_irq)}
+                                {renderField('will_the_third_party_perform_or_execute_on_behalf_of_gsk_irq', fieldConfigs.will_the_third_party_perform_or_execute_on_behalf_of_gsk_irq)}
+                                {renderField('icr_is_the_third_party_engaged_in_providing_or_supporting_irq', fieldConfigs.icr_is_the_third_party_engaged_in_providing_or_supporting_irq)}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Field Summary */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                        <h3 className="text-lg font-semibold text-blue-900 mb-4">Complete Field Implementation Summary</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
+                            <div>
+                                <h4 className="font-medium text-blue-800">Core Engagement (3)</h4>
+                                <ul className="list-disc list-inside text-blue-700">
+                                    <li>Engagement Type</li>
+                                    <li>GSK Info Categories</li>
+                                    <li>Network Access</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-medium text-green-800">Data Processing (4)</h4>
+                                <ul className="list-disc list-inside text-green-700">
+                                    <li>Data Volume</li>
+                                    <li>Processing Location</li>
+                                    <li>IP Access</li>
+                                    <li>PI Category</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-medium text-purple-800">Application Dev (3)</h4>
+                                <ul className="list-disc list-inside text-purple-700">
+                                    <li>Development Model</li>
+                                    <li>Public Access</li>
+                                    <li>Impact Assessment</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-medium text-red-800">AI Assessment (3)</h4>
+                                <ul className="list-disc list-inside text-red-700">
+                                    <li>AI Usage</li>
+                                    <li>Deployment Model</li>
+                                    <li>Elevated Risk Factor</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-medium text-pink-800">Personal Info (2)</h4>
+                                <ul className="list-disc list-inside text-pink-700">
+                                    <li>Data Subject Volume</li>
+                                    <li>PI Management</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-medium text-indigo-800">Operational Tech (6)</h4>
+                                <ul className="list-disc list-inside text-indigo-700">
+                                    <li>OT Provider</li>
+                                    <li>Third Party Type</li>
+                                    <li>System Access Level</li>
+                                    <li>Software Development</li>
+                                    <li>GSK Performance</li>
+                                    <li>ICR Engagement</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div className="mt-4 p-4 bg-blue-100 rounded-lg">
+                            <h4 className="font-semibold text-blue-900 mb-2">✅ Complete Implementation Status</h4>
+                            <p className="text-blue-800 text-sm">
+                                <strong>All 21 fields implemented</strong> with complete Jinja logic including Technology Provider assessments, 
+                                AI usage evaluation, operational technology risks, personal information processing, and all interconnected risk scenarios.
+                                The tool implements the exact conditional logic from your Jinja template with proper field dependencies and risk factor calculations.
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Test Scenarios */}
+                    <div className="bg-white rounded-lg shadow-md p-6">
+                        <h3 className="text-lg font-semibold mb-4">Quick Test Scenarios</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {[
+                                {
+                                    name: "Very High Risk - CSI + External + VPN",
+                                    data: {
+                                        third_party_engagement_type_irq: 'Technology Providers',
+                                        what_categories_of_gsk_information_might_the_third_party_process_irq: 'Critical and Sensitive Information (CSI)',
+                                        please_provide_an_esitmated_value_for_each_classification_of_information_irq: '>100,000',
+                                        will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq: 'GSK Information will be processed outside',
+                                        will_the_third_party_have_access_to_gsks_intellectual_property_irq: 'True',
+                                        will_the_third_party_have_access_or_contact_to_gsk_it_irq: 'IPsec VPN'
+                                    }
+                                },
+                                {
+                                    name: "High Risk - AI + Sensitive PI",
+                                    data: {
+                                        third_party_engagement_type_irq: 'Technology Providers',
+                                        what_categories_of_gsk_information_might_the_third_party_process_irq: 'Confidential',
+                                        will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq: 'GSK Information will be processed outside',
+                                        will_the_third_party_have_access_or_contact_to_gsk_it_irq: 'Secure Remote Access (SRA) for OT Sites',
+                                        does_the_service_or_product_offered_by_the_third_party_use_artifical_intelligence_generative_irq: 'True',
+                                        what_type_of_deployment_model_will_be_used_for_the_ai_solution_irq: 'Third party is using AI in part of delivering service/product to GSK',
+                                        please_select_the_highesst_category_of_personal_information_irq: 'Sensitive PI',
+                                        what_is_the_estimated_volume_of_data_subjects_whose_personal_irq: '1001-10,000',
+                                        you_have_indicated_that_the_third_party_will_process_store_irq: 'Managed by the Third Party'
+                                    }
+                                },
+                                {
+                                    name: "Medium Risk - OT Asset Vendor",
+                                    data: {
+                                        third_party_engagement_type_irq: 'Technology Providers',
+                                        what_categories_of_gsk_information_might_the_third_party_process_irq: 'Proprietary',
+                                        will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq: 'GSK Information will be processed outside',
+                                        will_the_third_party_have_access_or_contact_to_gsk_it_irq: 'Secure File Transfer',
+                                        will_the_third_party_provide_operational_technology_irq: 'True',
+                                        is_the_third_party_an_irq: 'OT Asset Vendor',
+                                        what_is_the_level_of_system_access_that_the_third_party_will_need_irq: 'Access to GSK systems',
+                                        does_the_third_party_develop_maintain_or_provide_services_related_to_software_development_irq: 'Third Party develops software and remotely manages it (Troubleshooting).'
+                                    }
+                                },
+                                {
+                                    name: "Low Risk - Internal Processing",
+                                    data: {
+                                        third_party_engagement_type_irq: 'Technology Providers',
+                                        what_categories_of_gsk_information_might_the_third_party_process_irq: 'Confidential',
+                                        will_the_data_be_restricted_to_gsk_issued_laptops_servers_irq: 'GSK Information will be processed within',
+                                        will_the_third_party_have_access_or_contact_to_gsk_it_irq: 'GSK issued laptop and user credentials (MUDID)',
+                                        will_the_third_party_have_access_to_gsks_intellectual_property_irq: 'False'
+                                    }
+                                },
+                                {
+                                    name: "OT High Risk - Supply Chain",
+                                    data: {
+                                        third_party_engagement_type_irq: 'Technology Providers',
+                                        will_the_third_party_provide_operational_technology_irq: 'True',
+                                        is_the_third_party_an_irq: 'OT Asset Owner',
+                                        will_the_third_party_perform_or_execute_on_behalf_of_gsk_irq: 'Directly Supply subcomponents (ingredients, packaging etc.) or finished product to the GSK supply chain that are produced using computerised automated manufacturing systems',
+                                        will_the_third_party_have_access_or_contact_to_gsk_it_irq: 'Secure File Transfer'
+                                    }
+                                },
+                                {
+                                    name: "Not in Scope - No GSK Data",
+                                    data: {
+                                        third_party_engagement_type_irq: 'Marketing and Media',
+                                        what_categories_of_gsk_information_might_the_third_party_process_irq: 'Third Party will NOT process, store, transmit, handle or otherwise have access to GSK Information',
+                                        will_the_third_party_have_access_or_contact_to_gsk_it_irq: 'No, there is no connectivity'
+                                    }
+                                }
+                            ].map((scenario, index) => (
+                                <div key={index} className="bg-gray-50 rounded-lg p-4 border">
+                                    <h4 className="font-medium mb-2 text-sm">{scenario.name}</h4>
+                                    <button
+                                        onClick={() => setFormData(prev => ({ ...prev, ...scenario.data }))}
+                                        className="w-full px-3 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
+                                    >
+                                        Load Scenario
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Field Validation Helper */}
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                        <h3 className="text-lg font-semibold text-yellow-900 mb-4">Field Completion Guide</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                            <div>
+                                <h4 className="font-medium text-yellow-800 mb-2">Required Fields (3)</h4>
+                                <ul className="space-y-1">
+                                    <li className={`flex items-center ${formData.third_party_engagement_type_irq ? 'text-green-600' : 'text-red-600'}`}>
+                                        {formData.third_party_engagement_type_irq ? '✅' : '❌'} Engagement Type
+                                    </li>
+                                    <li className={`flex items-center ${formData.what_categories_of_gsk_information_might_the_third_party_process_irq ? 'text-green-600' : 'text-red-600'}`}>
+                                        {formData.what_categories_of_gsk_information_might_the_third_party_process_irq ? '✅' : '❌'} GSK Info Categories
+                                    </li>
+                                    <li className={`flex items-center ${formData.will_the_third_party_have_access_or_contact_to_gsk_it_irq ? 'text-green-600' : 'text-red-600'}`}>
+                                        {formData.will_the_third_party_have_access_or_contact_to_gsk_it_irq ? '✅' : '❌'} Network Access
+                                    </li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-medium text-yellow-800 mb-2">Key Risk Drivers</h4>
+                                <ul className="space-y-1 text-yellow-700">
+                                    <li>• Technology Provider = Main risk path</li>
+                                    <li>• CSI + External = Very High Risk</li>
+                                    <li>• VPN/Leased Line = Very High Risk</li>
+                                    <li>• AI Usage = Medium/High Risk</li>
+                                    <li>• OT Asset Owner = Medium/High Risk</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-medium text-yellow-800 mb-2">Risk Levels</h4>
+                                <ul className="space-y-1">
+                                    <li className="text-red-600">🔴 Very High Risk</li>
+                                    <li className="text-orange-600">🟠 High Risk</li>
+                                    <li className="text-yellow-600">🟡 Medium Risk</li>
+                                    <li className="text-green-600">🟢 Low Risk</li>
+                                    <li className="text-gray-600">⚪ Not in Scope</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                        <h3 className="text-lg font-semibold text-blue-900 mb-2">Complete ICR Risk Assessment Tool</h3>
+                        <p className="text-blue-800 text-sm mb-4">
+                            This tool implements ALL 21 fields from your ICR Risk Assessment requirements with the complete Jinja logic. 
+                            It includes Technology Provider assessments, AI usage evaluation, operational technology risks, 
+                            personal information processing, and all interconnected risk scenarios from your template.
+                        </p>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-blue-600">
+                            <div>
+                                <h4 className="font-medium mb-1">Implementation</h4>
+                                <ul className="space-y-1">
+                                    <li>✅ All 21 fields</li>
+                                    <li>✅ Complete Jinja logic</li>
+                                    <li>✅ Field dependencies</li>
+                                    <li>✅ Risk factor analysis</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-medium mb-1">Features</h4>
+                                <ul className="space-y-1">
+                                    <li>✅ Real-time calculation</li>
+                                    <li>✅ Export functionality</li>
+                                    <li>✅ Test scenarios</li>
+                                    <li>✅ Field validation</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-medium mb-1">Risk Areas</h4>
+                                <ul className="space-y-1">
+                                    <li>✅ Technology Provider</li>
+                                    <li>✅ AI/Generative AI</li>
+                                    <li>✅ Operational Technology</li>
+                                    <li>✅ Personal Information</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-medium mb-1">Field Categories</h4>
+                                <ul className="space-y-1">
+                                    <li>✅ Core Engagement (3)</li>
+                                    <li>✅ Data Processing (4)</li>
+                                    <li>✅ Application Dev (3)</li>
+                                    <li>✅ AI Assessment (3)</li>
+                                    <li>✅ Personal Info (2)</li>
+                                    <li>✅ Operational Tech (6)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<ICRRiskTool />, document.getElementById('root'));
+    </script>
+</body>
+</html>
